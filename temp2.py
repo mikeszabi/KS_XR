@@ -7,7 +7,8 @@ This is a temporary script file.
 import sys
 import imp
 
-#imp.reload(sys.modules['image_helper'])
+#imp.reload(sys.modules['roi'])
+from roi import get_roi
 
 import os
 import skimage.io as io
@@ -29,7 +30,6 @@ from skimage import filters
 from file_helper import dirlist_onelevel, imagelist_in_depth
 from segmentations import segment_global_kmean
 from image_helper import gray_hist, mask_overlay, get_gradient_magnitude
-from roi import get_roi
 
 #from skimage import img_as_ubyte, img_as_float
 #from skimage.transform import rescale
@@ -42,22 +42,19 @@ from roi import get_roi
 # PARAMETERS
 # =============================================================================
 
-size_small=500
+size_small=250
 
-data_dir=r'c:\Users\szmike\Documents\Projects\KS_XR\data\2-sarga'
-save_dir=r'c:\Users\szmike\Documents\Projects\KS_XR\out'
+data_dir=r'E:\OneDrive\Kienle\X-ray képek\201710'
+save_dir=r'D:\Projects\KS_XR\out'
 
 measure_ids=dirlist_onelevel(data_dir)
 
-edges=[]
-hists=[]
 ims=[]
 
-coll = io.ImageCollection(data_dir + '/chess*.png')
 
 for measure_id in measure_ids:
 
-    #measure_id=measure_ids[0]
+    # measure_id=measure_ids[0]
 
     measure_dir=os.path.join(data_dir,measure_id)
 
@@ -78,12 +75,12 @@ for measure_id in measure_ids:
         ims.append(im_small)
         
         
-        h=gray_hist(im_small,vis_diag=False,nbins=128)        
-        hists.append(h)
+#        h=gray_hist(im_small,vis_diag=False,nbins=128)        
+#        hists.append(h)
                 
         ##
-        edges1 = feature.canny(im_small, sigma=3, low_threshold=0.05, high_threshold=0.25, use_quantiles=False)
-        edges.append(edges1)
+#        edges1 = feature.canny(im_small, sigma=3, low_threshold=0.05, high_threshold=0.25, use_quantiles=False)
+#        edges.append(edges1)
         #plt.imshow(edges1)
 
 for i in range(len(ims)):

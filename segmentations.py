@@ -29,7 +29,7 @@ def segment_global_kmean(im,  init_centers='k-means++', n_clusters=3, vis_diag=F
  
     label_orig=np.resize(label,im.shape)
     
-    normalize(label_orig,vis_diag=True,fig='labels')
+    normalize(label_orig,vis_diag=vis_diag,fig='labels')
    
     return center, label_orig
 

@@ -96,11 +96,11 @@ fh = plt.figure('segment')
 ax0=fh.add_subplot(121)
 ax1=fh.add_subplot(122)
 
-i=0
+i=1
 im_mask = segmentation.felzenszwalb(ims[i], scale=500, sigma=1.5,min_size=1000)
 # 500-ra . scale=1000, sigma=1.5,min_size=10000
-#ax0.imshow(ims[i],cmap='gray')
-#ax1.imshow(im_mask)
+ax0.imshow(ims[i],cmap='gray')
+ax1.imshow(im_mask)
 
 mask_overlay(ims[i],segmentation.find_boundaries(im_mask),0.5,ch=1,sbs=True,vis_diag=True)
 
@@ -109,7 +109,7 @@ mask_overlay(ims[i],segmentation.find_boundaries(im_mask),0.5,ch=1,sbs=True,vis_
 
 # global kmeans
 i=0
-center, label = segment_global_kmean(ims[i],n_clusters=5)
+center, label = segment_global_kmean(ims[i],n_clusters=10)
         
 mask_overlay(im_small,label==3,0.3,ch=1,sbs=False,vis_diag=True)
 
@@ -141,3 +141,69 @@ for a in ax:
 
 plt.tight_layout()
 plt.show()
+
+##
+# porosity
+
+from skimage.filters import gaussian
+
+image_file=image_file_list[3]
+im_orig=io.imread(image_file)
+fh = plt.figure('segment')
+ax0=fh.add_subplot(121)
+ax1=fh.add_subplot(122)
+
+ax0.imshow(im_orig,cmap='gray')
+
+im_orig=gaussian(im_orig, sigma=2)
+ax1.imshow(im_blur,cmap='gray')
+
+##
+# CLAHE
+from skimage import exposure
+from skimage import feature
+from math import sqrt
+
+im_clahe=exposure.equalize_adapthist(im_orig,kernel_size=(50,50))
+
+ax1.imshow(im_orig,cmap='gray')
+
+blobs_dog = feature.blob_dog(1-im_orig, max_sigma=20, threshold=0.1)
+blobs_dog[:, 2] = blobs_dog[:, 2] * sqrt(2)
+for blob in blobs_dog:
+    y, x, r = blob
+    c = plt.Circle((x, y), r, color='red', linewidth=2, fill=False)
+    ax1.add_patch(c)
+ax1.set_axis_off()
+
+plt.tight_layout()
+plt.show()
+
+##
+from skimage.morphology import disk
+from skimage.filters.rank import bottomhat, otsu, entropy
+
+
+out = bottomhat(im_orig, disk(10))
+ax1.imshow(out,cmap='gray')
+
+##
+ent = entropy(im_orig, disk(10))
+ax1.imshow(ent>4.5,cmap='gray')
+
+##
+from skimage.morphology import watershed
+from skimage.feature import peak_local_max
+from scipy import ndimage as ndi
+
+local_maxi = peak_local_max(1-im_orig, indices=False, footprint=np.ones((10, 10)))
+ax1.imshow(local_maxi,cmap='gray')
+
+markers = ndi.label(local_maxi)[0]
+labels = watershed(im_orig, markers)
+ax1.imshow(labels)
+
+# felzenszwalb
+im_mask = segmentation.felzenszwalb(im_orig, scale=50, sigma=1.5,min_size=50)
+# 500-ra . scale=1000, sigma=1.5,min_size=10000
+ax1.imshow(im_mask)

@@ -8,28 +8,28 @@ import sys
 import imp
 
 #imp.reload(sys.modules['roi'])
-from roi import get_roi
+from roi import get_roi, crop_roi
 
 import os
 import skimage.io as io
 io.use_plugin('pil') # Use all capabilities provided by PIL
 from PIL import Image
 
+#imp.reload(sys.modules['cfg'])
+from cfg import cfg
 
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 from matplotlib import cm
 import numpy as np
 
-from skimage import segmentation
+from skimage import color
 from skimage import transform
-from skimage import feature
-from skimage import filters
+from image_helper import mask_overlay
+from file_helper import dirlist_onelevel
 
 
-from file_helper import dirlist_onelevel, imagelist_in_depth
-from segmentations import segment_global_kmean
-from image_helper import gray_hist, mask_overlay, get_gradient_magnitude
+
 
 #from skimage import img_as_ubyte, img_as_float
 #from skimage.transform import rescale
@@ -42,10 +42,15 @@ from image_helper import gray_hist, mask_overlay, get_gradient_magnitude
 # PARAMETERS
 # =============================================================================
 
-size_small=250
+p=cfg()
 
-data_dir=r'E:\OneDrive\Kienle\X-ray képek\201710'
-save_dir=r'D:\Projects\KS_XR\out'
+size_small=int(p.params['smallsize'])
+ppmm=int(p.params['pixpermm'])
+
+data_dir=r'E:\OneDrive\KS-XR\X-ray képek\201710'
+save_dir=r'E:\OneDrive\KS-XR\X-ray képek\Test\roi'
+save_dir_temp=r'E:\OneDrive\KS-XR\X-ray képek\Test\roi_crop'
+
 
 measure_ids=dirlist_onelevel(data_dir)
 
@@ -60,33 +65,33 @@ for measure_id in measure_ids:
 
     coll = io.ImageCollection(measure_dir + '\\*.jpg')
 
-#
-#    image_file_list=imagelist_in_depth(measure_dir)
-#    
-#    for image_file in image_file_list:
+for i, im_orig in enumerate(coll):
     
-    for im_orig in coll:
-       
-        #image_file=image_file_list[0]
-        
-#        im_orig=io.imread(image_file)
-        im_small=transform.resize(im_orig, (size_small, size_small), mode='reflect')
-        
-        ims.append(im_small)
-        
-        
-#        h=gray_hist(im_small,vis_diag=False,nbins=128)        
-#        hists.append(h)
-                
-        ##
-#        edges1 = feature.canny(im_small, sigma=3, low_threshold=0.05, high_threshold=0.25, use_quantiles=False)
-#        edges.append(edges1)
-        #plt.imshow(edges1)
+    im_file=r'E:\OneDrive\KS-XR\X-ray képek\Test\roi_problems\2351-G.jpg'
+    #im_orig=io.imread(im_file)
+    
+    im_file=coll.files[i]
 
-for i in range(len(ims)):
-    roi_mask=get_roi(ims[i],n_clusters=5,vis_diag=False)
-    roi_masked=255*mask_overlay(ims[i],roi_mask,0.5,ch=1,sbs=True,vis_diag=False)
+# small size
+    im=transform.resize(im_orig, (size_small, size_small), mode='reflect')
 
-    img = Image.fromarray(roi_masked.astype('uint8'))
-    img.save(os.path.join(save_dir,str(i)+'.jpg'))
+    roi_mask=get_roi(im,n_clusters=5,vis_diag=False)
+    
+# visualize croping    
+    roi_masked=255*mask_overlay(im,roi_mask,0.5,ch=1,sbs=True,vis_diag=False)
+    
+    save_file_temp=os.path.join(save_dir_temp,os.path.basename(im_file))
+   
+    im_cropped=crop_roi(roi_masked.astype('uint8'),roi_mask,pad_rate=0.5,save_file=save_file_temp,vis_diag=False)
+
+
+# crop original size
+    save_file=os.path.join(save_dir,os.path.basename(im_file))
+
+
+    roi_mask_orig=transform.resize(roi_mask, im_orig.shape, mode='reflect')
+    im_cropped=crop_roi(im_orig,roi_mask_orig,pad_rate=0.5)
+
+    img = Image.fromarray(im_cropped.astype('uint8'))
+    img.save(save_file)
     

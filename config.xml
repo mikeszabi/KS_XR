@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<config>
+    <params>
+        <pixpermm>4</pixpermm>
+        <smallsize>250</smallsize>
+    </params>
+    <files>
+        <control>control.log</control>
+    </files>
+    <processing>       
+    	 <delete_files>false</delete_files>
+    </processing>
+</config>
+

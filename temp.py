@@ -149,13 +149,14 @@ from skimage.filters import gaussian
 
 image_file=image_file_list[3]
 im_orig=io.imread(image_file)
+
 fh = plt.figure('segment')
 ax0=fh.add_subplot(121)
 ax1=fh.add_subplot(122)
 
 ax0.imshow(im_orig,cmap='gray')
 
-im_orig=gaussian(im_orig, sigma=2)
+im_blur=gaussian(im_orig, sigma=2)
 ax1.imshow(im_blur,cmap='gray')
 
 ##
@@ -188,8 +189,8 @@ out = bottomhat(im_orig, disk(10))
 ax1.imshow(out,cmap='gray')
 
 ##
-ent = entropy(im_orig, disk(10))
-ax1.imshow(ent>4.5,cmap='gray')
+ent = entropy(im_orig, disk(3))
+ax1.imshow(ent,cmap='gray')
 
 ##
 from skimage.morphology import watershed
@@ -204,6 +205,6 @@ labels = watershed(im_orig, markers)
 ax1.imshow(labels)
 
 # felzenszwalb
-im_mask = segmentation.felzenszwalb(im_orig, scale=50, sigma=1.5,min_size=50)
+im_mask = segmentation.felzenszwalb(im_clahe, scale=50, sigma=1.5,min_size=50)
 # 500-ra . scale=1000, sigma=1.5,min_size=10000
 ax1.imshow(im_mask)

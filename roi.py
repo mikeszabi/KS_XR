@@ -17,6 +17,8 @@ import matplotlib.patches as patches
 
 from image_helper import mask_overlay
 
+def check_geometry(im,n_clusters=2,vis_diag=False):
+    center, label = segment_global_kmean(im,n_clusters=n_clusters,vis_diag=vis_diag)
 
 
 def get_roi(im,n_clusters=5,geo_bb=(0.28,0.83,0.35,0.65),vis_diag=False):

@@ -9,16 +9,55 @@ import os
 import numpy as np
 from skimage import morphology 
 from skimage import segmentation 
-from segmentations import segment_global_kmean
 from skimage import measure 
 from matplotlib import pyplot as plt
 import matplotlib.patches as patches
 
+from src_helpers.image_helper import mask_overlay
+from src_tools.segmentations import segment_global_kmean
 
-from image_helper import mask_overlay
-
-def check_geometry(im,n_clusters=2,vis_diag=False):
+def check_geometry(im,n_clusters=2,save_file=None,vis_diag=False):
     center, label = segment_global_kmean(im,n_clusters=n_clusters,vis_diag=vis_diag)
+    max_label=np.argmax(center)
+    
+    rotor_mask = label==max_label
+    rotor_mask=morphology.binary_opening(rotor_mask, morphology.disk(7))
+    
+    label_im=measure.label(rotor_mask)
+    props = measure.regionprops(label_im)
+    
+    # check1: find largest components
+    # check area
+    areas = [prop.area for prop in props]   
+    
+    prop_large = props[np.argmax(areas)] 
+
+    check={}
+
+    check['area']=prop_large.area  
+    check['y_top']=prop_large.bbox[0]
+    check['x_start']=prop_large.bbox[1]
+    check['y_bottom']=prop_large.bbox[2]
+    check['x_end']=prop_large.bbox[3]
+    
+    if save_file:
+        fig, (ax1) = plt.subplots(nrows=1, ncols=1, figsize=(8, 3))
+        fig.suptitle(os.path.basename(save_file))
+    
+        ax1.imshow(im,cmap='gray')
+        #ax1.axis('off')
+   
+        ax1.add_patch(patches.Rectangle(
+                    (prop_large.bbox[1], prop_large.bbox[0]),   # (x,y)
+                        prop_large.bbox[3],        # width
+                        prop_large.bbox[2],       # height
+                        fill=False,color='Red'))       
+        
+        fig.savefig(save_file)
+        plt.close('all')
+    
+    return check
+  
 
 
 def get_roi(im,n_clusters=5,geo_bb=(0.28,0.83,0.35,0.65),vis_diag=False):
@@ -64,7 +103,6 @@ def crop_roi(im,roi_mask,pad_rate=0.5,save_file=None,vis_diag=False):
     im_cropped=None
     if areas:    
         if max(l)>max(im.shape[0],im.shape[1])*0.2:
-            # ToDo: find area with largest edges1
             prop_large = props[np.argmax(areas)]       
             bb=prop_large.bbox
     if bb:

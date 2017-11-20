@@ -14,7 +14,7 @@ mser.setMinArea(50)
 mser.setMaxArea(100000)
 
 ## Do mser detection, get the coodinates and bboxes
-coordinates, bboxes = mser.detectRegions(im_orig)
+coordinates, bboxes = mser.detectRegions(im_adj)
 
 ## Filter the coordinates
 vis = im_orig.copy()

@@ -7,8 +7,8 @@ This is a temporary script file.
 import sys
 import imp
 
-#imp.reload(sys.modules['roi'])
-from roi import get_roi, crop_roi
+#imp.reload(sys.modules['src_tools.roi'])
+from src_tools.roi import get_roi, crop_roi
 
 import os
 import skimage.io as io
@@ -25,8 +25,8 @@ import numpy as np
 
 from skimage import color
 from skimage import transform
-from image_helper import mask_overlay
-from file_helper import dirlist_onelevel
+from src_helpers.image_helper import mask_overlay
+from src_helpers.file_helper import dirlist_onelevel
 
 
 
@@ -65,33 +65,33 @@ for measure_id in measure_ids:
 
     coll = io.ImageCollection(measure_dir + '\\*.jpg')
 
-for i, im_orig in enumerate(coll):
+    for i, im_orig in enumerate(coll):
+        
+ #       im_file=r'E:\OneDrive\KS-XR\X-ray képek\Test\roi_problems\2351-G.jpg'
+        
+        im_file=coll.files[i]
+        # im_orig=io.imread(im_file)
     
-    im_file=r'E:\OneDrive\KS-XR\X-ray képek\Test\roi_problems\2351-G.jpg'
-    #im_orig=io.imread(im_file)
+    # small size
+        im=transform.resize(im_orig, (size_small, size_small), mode='reflect')
     
-    im_file=coll.files[i]
-
-# small size
-    im=transform.resize(im_orig, (size_small, size_small), mode='reflect')
-
-    roi_mask=get_roi(im,n_clusters=5,vis_diag=False)
+        roi_mask=get_roi(im,n_clusters=5,vis_diag=False)
+        
+    # visualize croping    
+        roi_masked=255*mask_overlay(im,roi_mask,0.5,ch=1,sbs=True,vis_diag=False)
+        
+        save_file_temp=os.path.join(save_dir_temp,os.path.basename(im_file))
+       
+        im_cropped=crop_roi(roi_masked.astype('uint8'),roi_mask,pad_rate=0.5,save_file=save_file_temp,vis_diag=False)
     
-# visualize croping    
-    roi_masked=255*mask_overlay(im,roi_mask,0.5,ch=1,sbs=True,vis_diag=False)
     
-    save_file_temp=os.path.join(save_dir_temp,os.path.basename(im_file))
-   
-    im_cropped=crop_roi(roi_masked.astype('uint8'),roi_mask,pad_rate=0.5,save_file=save_file_temp,vis_diag=False)
-
-
-# crop original size
-    save_file=os.path.join(save_dir,os.path.basename(im_file))
-
-
-    roi_mask_orig=transform.resize(roi_mask, im_orig.shape, mode='reflect')
-    im_cropped=crop_roi(im_orig,roi_mask_orig,pad_rate=0.5)
-
-    img = Image.fromarray(im_cropped.astype('uint8'))
-    img.save(save_file)
+    # crop original size
+        save_file=os.path.join(save_dir,os.path.basename(im_file))
+    
+    
+        roi_mask_orig=transform.resize(roi_mask, im_orig.shape, mode='reflect')
+        im_cropped=crop_roi(im_orig,roi_mask_orig,pad_rate=0.5)
+    
+        img = Image.fromarray(im_cropped.astype('uint8'))
+        img.save(save_file)
     

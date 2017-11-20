@@ -22,4 +22,6 @@ df_3=df[(df['Classification']==3) & (df['Faulty']==1)]
 df_2=df[(df['Classification']==2) & (df['Faulty']==1)]
 
 
-df.query('Classification == 4 and  Description == 3')
+
+
+

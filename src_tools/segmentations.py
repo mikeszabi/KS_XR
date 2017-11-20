@@ -6,10 +6,10 @@ Created on Wed Feb  1 10:33:32 2017
 """
 import warnings
 import numpy as np;
-from image_helper import normalize
 from sklearn.cluster import KMeans
 from sklearn.metrics import pairwise_distances
 
+from src_helpers.image_helper import normalize
 
 
 def segment_global_kmean(im,  init_centers='k-means++', n_clusters=3, vis_diag=False): 

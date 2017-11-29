@@ -17,15 +17,15 @@ def blob_detections(image):
     
     image_gray = rgb2gray(image).astype('float64')/255
     
-    blobs_log = blob_log(1-image_gray, max_sigma=30, num_sigma=10, threshold=0.05)
+    blobs_log = blob_log(1-image_gray, max_sigma=20, num_sigma=10, threshold=0.15)
     
     # Compute radii in the 3rd column.
     blobs_log[:, 2] = blobs_log[:, 2] * sqrt(2)
     
-    blobs_dog = blob_dog(1-image_gray, max_sigma=30, threshold=0.05)
+    blobs_dog = blob_dog(1-image_gray, max_sigma=20, threshold=0.5)
     blobs_dog[:, 2] = blobs_dog[:, 2] * sqrt(2)
     
-    blobs_doh = blob_doh(1-image_gray, max_sigma=30, threshold=.005)
+    blobs_doh = blob_doh(1-image_gray, max_sigma=20, threshold=.002)
     
     blobs_list = [blobs_log, blobs_dog, blobs_doh]
     colors = ['yellow', 'lime', 'red']

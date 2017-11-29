@@ -8,11 +8,11 @@ import os
 import pandas as pd
 
 
-data_dir=r'e:\OneDrive\KS-XR\X-ray képek\201710'
+d_dir=r'e:\OneDrive\KS-XR\X-ray képek\ImageDB'
 
-measure_file='measurements.csv'
+measure_file='Database.csv'
 
-df=pd.read_csv(os.path.join(data_dir,measure_file),delimiter=';')
+df=pd.read_csv(os.path.join(d_dir,measure_file),delimiter=';')
 
 ind_4=df.iloc(df['Classification']==4)
 

@@ -11,10 +11,13 @@ from skimage import exposure
 from skimage import restoration
 from skimage import morphology
 from skimage import segmentation
+import matplotlib.pyplot as plt
 
 
+%matplotlib qt5
 
-row=df_4.iloc[-4]
+
+row=df_4.iloc[0]
 
 file_selected=os.path.join(r'e:\OneDrive\KS-XR\X-ray képek\Test\roi',
 #                           row['Date'].replace('.',''),
@@ -38,3 +41,6 @@ im_bound=segmentation.mark_boundaries(im_orig,im_mask)
 
 segments = segmentation.slic(im_adj, n_segments=200, compactness=1)
 im_bound=segmentation.mark_boundaries(im_orig,segments)
+
+
+plt.imshow(im_mask,cmap='gray')

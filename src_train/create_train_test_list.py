@@ -53,7 +53,7 @@ def get_stratified_train_test_inds(y,train_proportion=0.75):
 # SET THESE PARAMETERS!
 #==============================================================================
 curdb_dir='roi'
-data_dir=r'e:\OneDrive\KS-XR\X-ray képek'
+data_dir=r'c:\Users\picturio\OneDrive\KS-XR\Images'
 
 #==============================================================================
 # RUN CONFIG

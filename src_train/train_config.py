@@ -15,7 +15,7 @@ class train_params:
     def __init__(self,data_dir=r'e:\OneDrive\KS-XR\X-ray képek',curdb_dir='roi',training_id=''):
         if os.path.exists(data_dir):
             self.base_imagedb_dir=os.path.join(data_dir,'ImageDB')
-            self.base_db_file=os.path.join(data_dir,'measurements.csv')
+            self.base_db_file=os.path.join(self.base_imagedb_dir,'measurements.csv')
             self.curdb_dir=os.path.join(data_dir,curdb_dir)
                 
             self.train_dir=os.path.join(data_dir,'Training_'+training_id)    

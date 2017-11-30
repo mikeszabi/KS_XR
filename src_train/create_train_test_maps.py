@@ -24,14 +24,13 @@ import csv
 from src_train.train_config import train_params
 #%matplotlib inline
 
-data_dir=os.path.join(r'C:\Users','picturio','OneDrive\WaterScope')
 
 #==============================================================================
 # SET THESE PARAMETERS!
 #==============================================================================
-data_dir=r'e:\OneDrive\KS-XR\X-ray képek'
-image_height = 150
-image_width  = 800
+data_dir=r'c:\Users\picturio\OneDrive\KS-XR\Images'
+image_height = 800
+image_width  = 150
 num_channels = 1
 numFeature = image_height * image_width * num_channels
 

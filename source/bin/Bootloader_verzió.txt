@@ -1,0 +1,20 @@
+Bootloader.vxxx.hex
+~~~~~~~~~~~~~~~~~~~
+
+Alap firmware, kezdve 2018.06.27
+
+Bootloader.v100.hex
+~~~~~~~~~~~~~~~~~~~
+
+Alap firmware, kibocsátva 2018.09.15
+ 
+Bootloader.v101.hex
+~~~~~~~~~~~~~~~~~~~
+
+Kiegészített firmware, kibocsátva 2018.09.20
+- nyomógomb konfigurálása, amit ha bekapcsoláskor nyomva talál
+  a bootloader, akkor kérdés nélkül az alap (FW1) firmware-t 
+  írja be a mikrokontrollerbe.
+
+
+

@@ -1,0 +1,143 @@
+Szubjektiv.vxxx.hex
+~~~~~~~~~~~~~~~~~~~
+
+Alap firmware, kibocsátva 2018.06.27
+
+Szubjektiv.v101.hex
+~~~~~~~~~~~~~~~~~~~
+
+Javított firmware (2018.09.04):
+- SP_MUTE mindig magas szinten van (hangszóró erősítő), mindig be van kapcsolva,
+  így kiküszöbölve a bekapcsolási kattanást.
+  
+Szubjektiv.v102.hex
+~~~~~~~~~~~~~~~~~~~
+
+Javított firmware (2018.09.23):
+- Hang indítás és leállítás is lágyan történik, a kattanások elkerülése végett.
+  AllSilent(void) - hang kikapcsolása
+  check_Sdata(void) - 0x80 Vezérlő egység ingerlés indítása
+- hangerő változtatása is lágyan történik (0x51, 0x61 Intenzitás beállítása)
+- Ingerlő üzemmód bevezetése:
+	- "Kattanás":	Ez az eredeti verzió. Minden Selector, Volume CTRL, Amplifier
+					be van állítva mérési paraméterek beállítása parancs, majd a 
+					Start parancs érkezésekor, illetve ki van kapcsolva a Stop parancs
+					érkezésekor. Ekkor van egy-egy halk kattanás a Start (paraméter) és
+					a Stop parancskor, de ingerlési szünetben csend van az ingerlőkben.
+	- "Súgás":		Stop parancs érkezésekor csak a Volume CTRL (hangerő) van 0-ra állítva,
+					minden más beállítás marad, így a következő paraméter parancs érkezésekor,
+					feltéve, hogy ugyan az az ingerlő, nincs kattanás. Így viszont
+					ingerlési szünetekben egy halk zaj hallható az utoljára használt 
+					ingerlőben.
+  
+
+  
+Szubjektiv.v110.HW1.hex
+Szubjektiv.v110.HW2.hex
+~~~~~~~~~~~~~~~~~~~~~~~
+  
+Javított, bővített firmware (2018.10.16)
+- Hardver verzió szerinti fordítási direktíva bevezetése.
+- Új (javított) hardver kezelése (HW2). BandPass Filter kezelése. Keskenysávú maszkolás 
+  kiválasztásakor a megadott frekvencia 100 szorosa jelenik meg a PWM kimeneten.
+- Változtak a 0x40-es (STOP) parancs esetén végrehajtott műveletek (mindkét csatorna 
+  ingerlését leállítja, kikapcsolja az ingerléshez használatos elemeket, stb.)
+- Külön lett választva a két oldal vezérlése (Bal, Jobb). Most már teljesen függetlenül 
+  lehet őket paraméterezni, indítani, elnémítani.
+- Megjelent egy új utasítás (0x41 - PAUSE), amivel az ingerléseket  el lehet némítani, akár
+  oldalanként is. A paraméterezésük ilyenkor megmarad, csak az adott oldal (vagy akár 
+  mindkettő egyszerre) hangereje lesz 0-ra állítva.
+- 0x50 és 0x60 utasításoknál (SET_PAR_x) beállítható a pulzáló ingerlés is. ADAT6...ADAT8-ban
+  kell megadni a paramétereket.
+- 0x51 és 0x61 utasításoknál (SET_INT_x) amennyiben PAUSE üzemmódban van az adott oldal, 
+  akkor csak a következő START parancsnál fog érvényre jutni az új érték.
+- HW2 esetén nem használhatóak a következő parancsok:
+	- 0x70 LowPass, HighPass szűrő kalibrálási értékek küldése (SEND_CAL)
+	- 0x71	LowPass, HighPass szűrő beállítási értékek (SET_FILT)
+	- 0x72	LowPass, HighPass szűrő kalibrálási értékek lekérdezése (GET_CAL)
+- 0x80 utasítás (START) kibővült egy paraméterrel, amiben az indítandó oldalt kell megadni.
+- Megszűnt a 0xF4 parancs, mivel már csak a "Súgás" üzemmódot használjuk. 
+- Ingerlés folyamatban jelző szétválasztása oldalankénti jelzésre, mivel már teljesen külön
+  lehet az oldalakat vezérelni.
+- Egyes parancsoknál, ahol eddig STOP-olva lettek az ingerlők, most az adott oldal PAUSE-zva lesz.
+
+
+
+Szubjektiv.v120b.HW2.hex
+~~~~~~~~~~~~~~~~~~~~~~~~
+  
+Javított, bővített béta firmware (2018.11.01)
+- Béta verzió, mivel élesben, hardveren még nincsenek tesztelve az új funkciók!
+- Control Amp áramkör működéséhez szükséges függvények kivitelezése:
+	- void LM1971_L_Write(BYTE CsInt);	Audio Attenuator Control Bal (Hangcsillapító
+	  LM1971)-re írás SPI2-n
+	- void LM1971_R_Write(BYTE CsInt);	Audio Attenuator Control Jobb (Hangcsillapító
+	  LM1971)-re írás SPI2-n
+	- void LM1971_M_Write(BYTE CsInt);	Audio Attenuator Control Mikrofon (Hangcsillapító
+	  LM1971)-re írás SPI2-n
+	- void SPI2_Init_LM1971();	SPI2 konfigurálása LM1971 írásához
+	- BYTE IntToCsill(BYTE Intenz);	Audio Attenuator Control csillapítás kiszámítása 
+	  a kapott intenzitásból
+- Control Amp áramkör vezérléséhez szükséges kommunikációs parancsok kivitelezése a 
+  Komm_protokoll_Szubjektiv_v1.14 dokumentum szerint:
+	- 0x90 Kezelői monitorozás indítása (C_START)
+	- 0x91 Kezelői monitorozás ingerlés baloldalon intenzitása (C_SET_CTL)
+	- 0x92 Kezelői monitorozás ingerlés jobb oldalon intenzitása (C_SET_CTR)
+	- 0x93 Kezelői monitorozás páciens mikrofon intenzitása (C_SET_CMIC)
+	- 0x9F Kezelői monitorozás leállítása (némítása) (C_STOP)
+
+  
+Szubjektiv.v121b.HW2.hex
+~~~~~~~~~~~~~~~~~~~~~~~~
+  
+Javított béta firmware (2018.11.22)
+- 0x80 Vezérlő egység ingerlés indítása parancs érkezésekor nem az eddigi hangintenzitás
+  beállítást használom, hanem a külön függvényben lévőket:
+  R_SetInt();	L_SetInt();  
+  
+  
+Szubjektiv.v122b.HW2.hex
+~~~~~~~~~~~~~~~~~~~~~~~~
+  
+Javított béta firmware (2018.11.26)
+- Inicializáláskor a monitor erősítőt ki kell kapcsolni!
+  (void InitBoard(void))
+  
+  
+Szubjektiv.v200.hex
+~~~~~~~~~~~~~~~~~~~~~~~~
+  
+Javított, bővített firmware (2019.01.25)
+- Már csak a HW2-es hardver verzióhoz készül firmware!
+- Komm_Protokoll_Szubjektiv_V2.Docx v2.1 dokumentációban leírt új funkció megvalósítása.
+- WARBLE TONE inger típus beépítése, paraméterezhetőségének kivitelezése.
+- Pulzáló ingerlés paraméterezésének átalakítása.
+- SPI2 inicializálás ezután már csak ha szükséges, akkor történik.
+- Pause üzemmódban az Input Selectort is kikapcsolom, hogy a monitorozó kimeneten is 
+  csönd legyen.
+- Csak a Star parancs érkezésekor van beállítva az Input Selector (monitorozás miatt!)  
+- void SetFrequency(uint16_t Freq, uint8_t oldal) függvény megvalósítása. AD9834
+  frekvencia beállítása sebességre optimalizálva (ne legyen hallható zaj a változtatáskor
+  Warble ingerlésnél) 
+  
+  
+Szubjektiv.v210.HW2.hex
+~~~~~~~~~~~~~~~~~~~~~~~~
+  
+Javított, bővített firmware (2019.02.21)
+- Komm_Protokoll_Szubjektiv_V2.Docx v2.2 dokumentációban leírt új funkció megvalósítása.  
+- WARBLE + Pulse üzemmód megvalósítása.
+- SPI2 konfigurálása csak abban az esetben történik, ha az előző beállítás nem megfelelő.
+- Pulzáló üzemmódban, amikor az ingerlés a halk szakaszban van, akkor a monitorozó azonos
+  oldali csillapítása maximumra van állítva.
+- Monitorozó hangerőből csillapítás átszámítása még a beírás megkezdése előtt megtörténik, 
+  a gyorsabb beállítás miatt.
+  
+  
+  
+  
+  
+  
+  
+  
+  
